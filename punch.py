@@ -6,8 +6,8 @@ class TextGenerator:
 		self.chain = MarkovChain()
 		self.chain.generateDatabase(trainString, n=3)
 		self.currState = []
-		while (len(self.currState) < 2):
-			self.currState = self.chain.generateString().split()[-3:-1]
+		while (len(self.currState) < 3):
+			self.currState = self.chain.generateString().split()[-4:-1]
 	
 	def get_next_word(self):
 		nextword = ""
