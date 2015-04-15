@@ -1,4 +1,6 @@
 from pymarkovchain import MarkovChain
+from threading import Thread
+from queue import Queue
 import os
 import pyttsx
 
@@ -30,6 +32,18 @@ def load_text_dir_as_string(textDir):
 	for file in os.listdir(textDir):
 		text = text + open(textDir + "/" + file).read()
 	return text
+	
+def process(speaker, inputQueue):
+	#ttsEngine = pyttsx.init()
+
+	while True:
+		if not inputQueue.empty():
+			if inputQueue.get() == 'quit':
+				break
+			word = speaker.get_next_word()
+			print(speaker.generatorName + ": " + word)
+			#ttsEngine.say(word)
+			#ttsEngine.runAndWait()	
 		
 wordsDir = os.getcwd() + "/resources/text"
 worders = [d for d in os.listdir(wordsDir) if os.path.isdir(os.path.join(wordsDir, d))]
@@ -47,19 +61,24 @@ print("\n" + worders[worder2] + "!!")
 	
 textGen1 = TextGenerator(worders[worder1], load_text_dir_as_string(wordsDir + "/" + worders[worder1]), 3)
 textGen2 = TextGenerator(worders[worder2], load_text_dir_as_string(wordsDir + "/" + worders[worder2]), 3)
-speakers = [textGen1, textGen2]
 
+inputQueue1 = Queue()
+speaker1thread = Thread(target = process, args = (textGen1, inputQueue1))
+inputQueue2 = Queue()
+speaker2thread = Thread(target = process, args = (textGen2, inputQueue2))
+speaker1thread.start()
+speaker2thread.start()
 
 while 1:
 	userInput = input()
 	try: 
 		if userInput == '1':
-			word = speakers[0].get_next_word()
-			print(speakers[0].generatorName + ": " + word)
+			inputQueue1.put('1')
 		elif userInput == '2':
-			word = speakers[1].get_next_word()
-			print(speakers[1].generatorName + ": " + word)
+			inputQueue2.put('2')
 		elif userInput == 'quit':
+			inputQueue1.put('quit')
+			inputQueue2.put('quit')
 			quit()
 	except UnicodeEncodeError:
 		print("unicode error")
