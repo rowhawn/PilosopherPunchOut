@@ -1,5 +1,6 @@
 from pymarkovchain import MarkovChain
 import os
+import pyttsx
 
 class TextGenerator:
 	def __init__(self, generatorName, trainString, prefixLength):
@@ -48,13 +49,16 @@ textGen1 = TextGenerator(worders[worder1], load_text_dir_as_string(wordsDir + "/
 textGen2 = TextGenerator(worders[worder2], load_text_dir_as_string(wordsDir + "/" + worders[worder2]), 3)
 speakers = [textGen1, textGen2]
 
+
 while 1:
 	userInput = input()
 	try: 
 		if userInput == '1':
-			print(speakers[0].generatorName + ": " + speakers[0].get_next_word())
+			word = speakers[0].get_next_word()
+			print(speakers[0].generatorName + ": " + word)
 		elif userInput == '2':
-			print(speakers[1].generatorName + ": " + speakers[1].get_next_word())
+			word = speakers[1].get_next_word()
+			print(speakers[1].generatorName + ": " + word)
 		elif userInput == 'quit':
 			quit()
 	except UnicodeEncodeError:
