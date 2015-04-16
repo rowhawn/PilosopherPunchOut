@@ -29,8 +29,17 @@ class TextGenerator:
 
 def load_text_dir_as_string(textDir):
 	text = ""
-	for file in os.listdir(textDir):
-		text = text + open(textDir + "/" + file).read()
+	for filename in os.listdir(textDir):
+		#print(filename)
+		file = open(textDir + "/" + filename)
+		linetext = "\n"
+		while linetext != "":
+			try:
+				linetext = file.readline()
+			except UnicodeDecodeError:
+				print("unicode decode error")
+				linetext = " "
+			text += linetext				
 	return text
 	
 def process(speaker, inputQueue):
@@ -41,9 +50,12 @@ def process(speaker, inputQueue):
 			if inputQueue.get() == 'quit':
 				break
 			word = speaker.get_next_word()
-			print(speaker.generatorName + ": " + word)
-			#ttsEngine.say(word)
-			#ttsEngine.runAndWait()	
+			try:
+				print(speaker.generatorName + ": " + word)
+				#ttsEngine.say(word)
+				#ttsEngine.runAndWait()	
+			except UnicodeEncodeError:
+				print("unicode error")
 		
 wordsDir = os.getcwd() + "/resources/text"
 worders = [d for d in os.listdir(wordsDir) if os.path.isdir(os.path.join(wordsDir, d))]
@@ -67,7 +79,9 @@ speaker1thread = Thread(target = process, args = (textGen1, inputQueue1))
 inputQueue2 = Queue()
 speaker2thread = Thread(target = process, args = (textGen2, inputQueue2))
 speaker1thread.start()
+print("\n" + worders[worder1] + " ready!")
 speaker2thread.start()
+print("\n" + worders[worder2] + " ready!")
 
 while 1:
 	userInput = input()
