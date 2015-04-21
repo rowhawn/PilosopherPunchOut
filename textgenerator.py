@@ -24,7 +24,7 @@ class TextGenerator:
 				nextword = self.stripPattern.sub('', self.chain._nextWord(self.currState))
 				self.currState = self.currState[1:]
 				self.currState.append(nextword)
-			if len(nextword) < 4:
+			if len(nextword) < 4: # because hyphenator doesnt work for words less than 4 letters
 				self.syllableQ.put(nextword)
 			else: 
 				for syllable in self.hyphenator.syllables(nextword):

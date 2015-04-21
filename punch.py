@@ -57,8 +57,8 @@ textGen1 = TextGenerator(worders[worder1], load_text_dir_as_string(wordsDir + "/
 textGen2 = TextGenerator(worders[worder2], load_text_dir_as_string(wordsDir + "/" + worders[worder2]), 3)
 
 inputQueue1 = Queue()
-speaker1thread = Thread(target = process, args = (textGen1, inputQueue1))
 inputQueue2 = Queue()
+speaker1thread = Thread(target = process, args = (textGen1, inputQueue1))
 speaker2thread = Thread(target = process, args = (textGen2, inputQueue2))
 speaker1thread.start()
 print("\n" + worders[worder1] + " ready!")
