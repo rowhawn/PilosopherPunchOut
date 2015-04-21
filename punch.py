@@ -1,48 +1,14 @@
-from pymarkovchain import MarkovChain
 from threading import Thread
-from queue import Queue
 from hyphen import Hyphenator, dict_info
 from hyphen.dictools import *
+from queue import Queue
 import os
-import re
 import pyttsx
-
-class TextGenerator:
-	def __init__(self, generatorName, trainString, prefixLength):
-		self.generatorName = generatorName
-		self.chain = MarkovChain()
-		self.chain.generateDatabase(trainString, n=prefixLength)
-		self.currState = []
-		self.hyphenator = Hyphenator('en_US')
-		self.syllableQ = Queue()
-		self.stripPattern = re.compile('[\W_]+')
-		while (len(self.currState) < prefixLength):
-			self.currState = self.chain.generateString().split()[-(prefixLength+1):-1]
-	
-	def load_next_word(self):
-		nextword = ""
-		try:
-			while nextword == "":
-				nextword = self.stripPattern.sub('', self.chain._nextWord(self.currState))
-				self.currState = self.currState[1:]
-				self.currState.append(nextword)
-			if len(nextword) < 4:
-				self.syllableQ.put(nextword)
-			else: 
-				for syllable in self.hyphenator.syllables(nextword):
-					self.syllableQ.put(syllable)
-		except UnicodeEncodeError:
-			print("unicode error")
-		
-	def get_next_syllable(self):
-		if (self.syllableQ.empty()):
-			self.load_next_word()
-		return self.syllableQ.get()
+from textgenerator import TextGenerator
 
 def load_text_dir_as_string(textDir):
 	text = ""
 	for filename in os.listdir(textDir):
-		#print(filename)
 		file = open(textDir + "/" + filename)
 		linetext = "\n"
 		while linetext != "":
@@ -68,10 +34,13 @@ def process(speaker, inputQueue):
 				#ttsEngine.runAndWait()	
 			except UnicodeEncodeError:
 				print("unicode error")
-		
+
+#install english hyphenator dictionary if necessary
+if not is_installed("en_US"): install("en_US")				
+				
+#read resources directory to determine list of worders				
 wordsDir = os.getcwd() + "/resources/text"
 worders = [d for d in os.listdir(wordsDir) if os.path.isdir(os.path.join(wordsDir, d))]
-if not is_installed("en_US"): install("en_US")
 
 print("In one corner we have:")
 for index, worder in enumerate(worders):
